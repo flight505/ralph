@@ -6,6 +6,22 @@ A stable prompt, a mutable plan, a loop that runs until the plan is empty.
 
 ---
 
+## Should you use Ralph?
+
+As of 2026-05-28, Claude Code ships [dynamic workflows](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code), which run tens to hundreds of parallel subagents in a single session with built-in verification, persist progress across interruptions, and handle codebase-scale work (e.g. the [Bun port from Zig to Rust](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code), 750K LOC). **For most "build a project end-to-end" tasks, dynamic workflows is now the official answer.**
+
+Ralph is for a narrower case. Use Ralph when one or more of these is true:
+
+- **You want to author the plan**, not have Claude plan it. Ralph executes a checklist you wrote; dynamic workflows decides what subtasks to spawn from a prompt.
+- **You want a shell process you can supervise.** Ralph is a bash script — `cron`, `tmux`, `ssh`, `systemd` all work normally on it. Dynamic workflows runs inside a Claude Code session.
+- **You are on Pro, or on a tier where dynamic workflows isn't available.** Dynamic workflows requires Max, Team, or admin-enabled Enterprise. Ralph runs on any tier.
+- **You want token cost bounded per iteration.** Ralph caps cost per iteration via `--max-budget-usd`. Dynamic workflows "consumes substantially more tokens than a typical Claude Code session" (their words).
+- **You want the loop to be inspectable.** Ralph is ~150 lines of bash you can read, modify, and audit. Dynamic workflows is managed infrastructure.
+
+If none of those apply, [try dynamic workflows first](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code).
+
+---
+
 ## Install
 
 ```bash
@@ -68,7 +84,7 @@ Single-session alternate mode. Spawns one `claude -p "/goal <condition>"` proces
 | Resistant to context rot | Yes — no context to rot | No — accumulates until auto-compact |
 | State between iterations | `plan.md` only | Full conversation |
 
-Default to `/ralph-run` for anything substantial. Reach for `/ralph-goal` when the work is small enough to fit comfortably in one session and the success condition is easy to phrase.
+Default to `/ralph-run` for anything substantial. Reach for `/ralph-goal` when the work is small enough to fit comfortably in one session and the success condition is easy to phrase. For codebase-scale work where Claude can plan the subtasks itself, prefer [dynamic workflows](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code) over either of these.
 
 ---
 

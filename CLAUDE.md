@@ -10,6 +10,20 @@ This is a fresh rebuild after two previous attempts (`../harness/` and `../sdk-b
 
 The previous attempts also replaced the long-running loop with native Agent Teams (parallel teammates inside one Claude session). That solves throughput, not endurance. A long-running agent should survive context compaction, crashes, and overnight runs — not just fan work out within one session.
 
+## What changed on 2026-05-28 — read before extending Ralph
+
+On the day Ralph v0.1.0 shipped, Anthropic released **Claude Opus 4.8** and **dynamic workflows in Claude Code**. Both reshape Ralph's niche, and any future work on this plugin needs to be honest about it.
+
+- **Dynamic workflows** ([blog](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code)) is, functionally, the official Anthropic answer to "build a project end-to-end unattended." Claude plans the work, spawns tens to hundreds of parallel subagents, runs adversarial verification, and persists progress across interruptions. It survives context rot because *coordination lives outside the conversation*, not because of fresh iterations. The Bun rewrite (Zig → Rust, 750K LOC, 11 days) was done with it. Available on Max, Team, and admin-enabled Enterprise — not Pro.
+- **Opus 4.8** is "4× less likely than its predecessor to allow flaws in code to pass unremarked." Part of Ralph's reason for re-running is to give a fresh model another shot at catching what the previous turn missed. Opus 4.8 misses less, which weakens the case for high iteration counts.
+
+**Implications for Ralph:**
+
+1. **Ralph is no longer "the" Ralph pattern.** Dynamic workflows is. Ralph is now one specific point in the design space: user-authored plan, shell-supervised, sub-Max-tier-friendly, transparent bash.
+2. **Don't try to "catch up" to dynamic workflows.** Parallel subagents, dynamic planning, adversarial verification, persistent progress — these would all blow the 3-command budget and the bash-only stack. They are not Ralph's niche.
+3. **Ralph's niche tightens, doesn't disappear.** The cases listed in `README.md` § "Should you use Ralph?" (you author the plan, you want a real shell process, you're on Pro) are real. Stay in that lane.
+4. **The right next plugin is probably not Ralph v0.2.** It's a separate "Claude Code workflows helper" that wraps `/goal`, `/branch`, worktrees, and dynamic workflows with opinionated defaults. Different problem, different plugin.
+
 ---
 
 ## Reference material — `research/`
@@ -111,6 +125,7 @@ These were evaluated and look like wrong primitives for Ralph at any version. Do
 - **Routines** — runs on Anthropic infrastructure, no local file access. Ralph is a local-file-first tool.
 - **Custom subagents via `--agents`** — adds configuration surface; we don't need contextual isolation when each iteration is already fresh.
 - **Agent view (`claude agents`)** — UI for managing many background sessions. Useful, but not a Ralph concern.
+- **Dynamic workflows integration** — see "What changed on 2026-05-28" above. Dynamic workflows is a different problem space (model plans, parallel subagents, Anthropic-managed coordination). Putting it behind a Ralph command would dilute Ralph's niche and confuse users about which tool to reach for. The right move is a separate plugin.
 
 ---
 
