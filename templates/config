@@ -1,0 +1,34 @@
+# Ralph loop config — sourced by lib/ralph-loop.sh
+# Edit values, no logic.
+
+# Hard cap on iterations. The loop also exits when plan.md has zero `- [ ]` items.
+RALPH_MAX_ITERATIONS=100
+
+# Per-iteration cap on agentic turns inside one `claude -p` call.
+RALPH_MAX_TURNS=10
+
+# Per-iteration USD cap. Applies to API-key users; subscription users hit plan limits first.
+# Until 2026-06-15, `-p` usage counts against your Claude subscription's regular limits.
+# From 2026-06-15, `-p` usage draws from a separate monthly Agent SDK credit.
+RALPH_BUDGET_USD=2.00
+
+# Model alias or full ID. `sonnet`/`opus` track the latest of each family.
+# Sonnet is the recommended default for many-iteration runs.
+RALPH_MODEL=sonnet
+
+# Permission mode. `bypassPermissions` matches canonical Ralph: the model can run
+# any command without prompting. This is the only mode where Ralph can build a
+# project end-to-end (install deps, run tests, commit, push, etc.) unattended.
+#
+# It is also the riskiest. The model could rm files, force-push, or call out to
+# the network. Run Ralph in a worktree, a container, or a disposable directory
+# you would not mind losing.
+#
+# Safer alternatives (will block common build steps — expect the loop to stall
+# on the first `npm install`, `pytest`, etc.):
+#   acceptEdits        — auto-approves edits and mkdir/touch/mv/cp only.
+#   auto               — uses Claude Code's auto-mode classifier (see
+#                        /en/auto-mode-config for which repos it trusts).
+#   dontAsk            — denies everything not in your permissions.allow rules
+#                        or the read-only command set. CI-grade lockdown.
+RALPH_PERMISSION_MODE=bypassPermissions

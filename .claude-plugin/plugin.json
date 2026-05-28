@@ -21,5 +21,10 @@
   ],
   "agents": [
     "./agents/code-studier.md"
+  ],
+  "commands": [
+    "./commands/ralph-init.md",
+    "./commands/ralph-run.md",
+    "./commands/ralph-goal.md"
   ]
 }
