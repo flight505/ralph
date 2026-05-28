@@ -1,0 +1,11 @@
+# Reference implementations — study material, not source.
+research/
+
+# OS / editor noise
+.DS_Store
+*.swp
+*~
+
+# Local loop state (if/when a state file is added)
+.ralph-state.json
+*.log
