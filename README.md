@@ -45,10 +45,11 @@ Scaffolds `.ralph/` in the current working directory:
 ├── plan.md            — flat markdown checklist of tasks
 ├── ralph.prompt.md    — per-iteration system-prompt rules
 ├── config             — model, budget, iteration cap
-└── logs/              — one JSON file per iteration
+├── logs/              — one JSON result + one stderr file per iteration
+└── .gitignore         — `*`, so .ralph/ never gets committed
 ```
 
-Adds `.ralph/` to `.gitignore` if a repo is present. Idempotent — does nothing if `.ralph/` already exists.
+`.ralph/` ignores itself via its own `.gitignore`, which works in a plain repo, a git worktree, or a subdirectory. Idempotent — does nothing if `.ralph/` already exists.
 
 ### `/ralph-run`
 
@@ -62,7 +63,7 @@ The model's job each turn:
 4. Edit `.ralph/plan.md` to flip it to `- [x]`
 5. Stop
 
-The loop exits when the plan has zero `- [ ]` items, `RALPH_MAX_ITERATIONS` is hit, or Ctrl+C.
+The loop exits when the plan has zero `- [ ]` items, `RALPH_MAX_ITERATIONS` is hit, or Ctrl+C. It also stops (exit 1) when an iteration fails — `claude` exits non-zero, reports `is_error`, or a non-`success` subtype such as `error_max_turns` — or when two consecutive iterations leave `plan.md` unchanged. In both cases it prints the model's last `result` so a stuck item is visible in the terminal, not just in `.ralph/logs/`.
 
 ### `/ralph-goal <condition>`
 
