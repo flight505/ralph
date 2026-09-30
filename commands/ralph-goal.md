@@ -12,4 +12,4 @@ Otherwise, run the wrapper:
 bash "${CLAUDE_PLUGIN_ROOT}/lib/ralph-goal.sh" "$ARGUMENTS"
 ```
 
-This spawns a single `claude -p "/goal <condition>"` process. The built-in evaluator runs after every turn until the condition holds or the budget cap (`RALPH_BUDGET_USD` from `.ralph/config`, default $5) is hit. The session is continued — it does **not** get a fresh context per turn. Use `/ralph-run` instead for long plans where context rot is a concern.
+This spawns a single `claude -p "/goal <condition>"` process. The built-in evaluator runs after every turn until the condition holds or the budget cap (`RALPH_GOAL_BUDGET_USD` from `.ralph/config`, default $5; the loop's per-iteration `RALPH_BUDGET_USD` is not used) is hit. The session is continued — it does **not** get a fresh context per turn. Use `/ralph-run` instead for long plans where context rot is a concern.
