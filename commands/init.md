@@ -8,4 +8,4 @@ Run the init script and report its output verbatim. Do not edit any files yourse
 bash "${CLAUDE_PLUGIN_ROOT}/lib/ralph-init.sh"
 ```
 
-After the script finishes, if it created the scaffold, remind the user to edit `.ralph/plan.md` before running `/ralph-run`. If `.ralph/` already existed, do nothing further.
+After the script finishes, if it created the scaffold, remind the user to edit `.ralph/plan.md` before running `/ralph:run`. If `.ralph/` already existed, do nothing further.

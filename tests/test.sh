@@ -176,6 +176,28 @@ check "sub/.ralph/plan.md ignored" '(cd "$d" && git check-ignore -q sub/.ralph/p
 echo "init: idempotent"
 check "second run is a no-op"      '(cd "$d" && bash "$REPO/lib/ralph-init.sh" | grep -q "already exists")'
 
+# --- command names ---------------------------------------------------------
+
+# The plugin is named "ralph", so Claude Code registers commands/<name>.md as
+# /ralph:<name>. The old short forms /ralph-init, /ralph-run, /ralph-goal are
+# not commands at all: in headless mode they are sent as plain text.
+# Script file names like lib/ralph-init.sh are fine and are masked out first.
+echo "commands: no old short-form command names"
+stale=$(for f in "$REPO"/commands/*.md "$REPO"/lib/*.sh "$REPO/README.md" "$REPO/CLAUDE.md"; do
+  sed -E 's#ralph-(init|run|goal|loop)\.sh##g' "$f" | grep -En '/ralph-(init|run|goal)' | sed "s#^#${f#"$REPO"/}:#"
+done)
+check "no /ralph-init, /ralph-run, /ralph-goal" '[[ -z "$stale" ]]'
+[[ -n "$stale" ]] && printf '%s\n' "$stale" | sed 's/^/       /'
+check "commands are init, run, goal"   '[[ -f "$REPO/commands/init.md" && -f "$REPO/commands/run.md" && -f "$REPO/commands/goal.md" ]]'
+missing=$(for f in "$REPO"/commands/*.md; do
+  grep -o 'lib/[A-Za-z0-9_.:-]*\.sh' "$f" | while read -r rel; do
+    [[ -f "$REPO/$rel" ]] || echo "${f#"$REPO"/} -> $rel"
+  done
+done)
+check "command files call scripts that exist" '[[ -z "$missing" ]]'
+[[ -n "$missing" ]] && printf '%s\n' "$missing" | sed 's/^/       /'
+check "plugin.json lists them"        'grep -q "commands/init.md" "$REPO/.claude-plugin/plugin.json" && grep -q "commands/run.md" "$REPO/.claude-plugin/plugin.json" && grep -q "commands/goal.md" "$REPO/.claude-plugin/plugin.json"'
+
 # --- summary ---------------------------------------------------------------
 
 echo

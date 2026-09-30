@@ -1,6 +1,6 @@
 #!/bin/bash
 # ralph-init — scaffold .ralph/ in the current working directory.
-# Invoked by the /ralph-init slash command, also runnable directly.
+# Invoked by the /ralph:init slash command, also runnable directly.
 
 set -e
 
@@ -10,7 +10,7 @@ TARGET=".ralph"
 
 if [[ -d "$TARGET" ]]; then
   echo "ralph: .ralph/ already exists in $(pwd). Not touching it."
-  echo "ralph: edit .ralph/plan.md to add items, then run /ralph-run."
+  echo "ralph: edit .ralph/plan.md to add items, then run /ralph:run."
   exit 0
 fi
 
@@ -34,5 +34,5 @@ ralph: scaffold ready.
 
 Next:
   1. Edit .ralph/plan.md and replace the example item.
-  2. Run /ralph-run to start the loop.
+  2. Run /ralph:run to start the loop.
 EOF2

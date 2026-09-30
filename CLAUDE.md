@@ -105,17 +105,17 @@ These were considered for v0.1.0 and consciously left out. They are NOT bugs or 
 
 ### To revisit on real evidence (a run actually needed them)
 
-- **Background sessions** (`claude --bg`, `claude attach`, `claude logs`). Would let `/ralph-run` detach so the interactive Claude session isn't held hostage by the Bash tool timeout. Revisit when: a user reports the 10-min Bash timeout cutting runs short *and* the "use a shell + tmux" workaround feels worse than adding a `--bg` flag to `/ralph-run`.
+- **Background sessions** (`claude --bg`, `claude attach`, `claude logs`). Would let `/ralph:run` detach so the interactive Claude session isn't held hostage by the Bash tool timeout. Revisit when: a user reports the 10-min Bash timeout cutting runs short *and* the "use a shell + tmux" workaround feels worse than adding a `--bg` flag to `/ralph:run`.
 - **Agent teams** (`agents.md`, `agent-teams.md`). Parallel teammates working on independent plan items at once. Revisit when: someone has a plan whose items are demonstrably independent and the sequential loop is the bottleneck. *Do not* revisit because it sounds cool — that's the trap `../harness/` fell into.
 - **SDK session stores** (`agent-sdk/session-storage.md` — S3, Redis, Postgres adapters). Mirror transcripts to external storage so any host can resume any session. Revisit when: someone runs Ralph across multiple machines (CI fleet, serverless) and the on-disk JSONL at `~/.claude/projects/...` actually fails them. Not before.
 - **Structured outputs** (`--json-schema`, `agent-sdk/structured-outputs.md`). Force the per-iteration response into a typed envelope (e.g. `{done: bool, next_action: string, blockers: []}`). Revisit when: log-grepping iteration JSON to figure out what happened proves too painful, OR when we want a status command that needs reliable parsing.
 
 ### To revisit if real Ralph runs surface these problems
 
-- **PreCompact / PostCompact hooks** (`hooks.md:43108-43164`). The fresh-context design means a single iteration shouldn't grow long enough to compact. If we ever switch to a single continued session — or `/ralph-goal` runs long enough to auto-compact — these become relevant for snapshotting plan state across the compact boundary.
+- **PreCompact / PostCompact hooks** (`hooks.md:43108-43164`). The fresh-context design means a single iteration shouldn't grow long enough to compact. If we ever switch to a single continued session — or `/ralph:goal` runs long enough to auto-compact — these become relevant for snapshotting plan state across the compact boundary.
 - **SessionStart hook with `additionalContext` / `initialUserMessage`** (`hooks.md:41672-41721`). Currently the plan content goes in as the user prompt every iteration. If we add `--session-id` + `--continue` for any reason, this is how we'd re-inject plan state on resume.
-- **Stop hook with `decision: block`** (`hooks.md:42711-42797`). The bash `_safe_count` grep on `plan.md` is the current plan-empty detector. A Stop hook is the in-session equivalent. Revisit if we move loop control inside Claude (e.g. for the `/ralph-goal` path) and want a smarter "should I stop" check than `/goal`'s default evaluator.
-- **`--session-id` + `--continue`** (`cli-reference.md:29884,29923`). Carries conversation across iterations. Specifically rejected for `/ralph-run` because it reintroduces context rot — the original Ralph problem. Only revisit if someone proves continued context is *required* for a class of tasks the fresh-context loop can't handle.
+- **Stop hook with `decision: block`** (`hooks.md:42711-42797`). The bash `_safe_count` grep on `plan.md` is the current plan-empty detector. A Stop hook is the in-session equivalent. Revisit if we move loop control inside Claude (e.g. for the `/ralph:goal` path) and want a smarter "should I stop" check than `/goal`'s default evaluator.
+- **`--session-id` + `--continue`** (`cli-reference.md:29884,29923`). Carries conversation across iterations. Specifically rejected for `/ralph:run` because it reintroduces context rot — the original Ralph problem. Only revisit if someone proves continued context is *required* for a class of tasks the fresh-context loop can't handle.
 
 ### Probably-never list
 
@@ -129,5 +129,5 @@ These were evaluated and look like wrong primitives for Ralph at any version. Do
 
 ---
 
-**Status:** v0.1.0 — three commands shipped (`/ralph-init`, `/ralph-run`, `/ralph-goal`).
+**Status:** v0.1.0 — three commands shipped (`/ralph:init`, `/ralph:run`, `/ralph:goal`).
 **Maintained by:** Jesper Vang (@flight505)

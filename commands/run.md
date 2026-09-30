@@ -20,4 +20,4 @@ Start the Ralph loop in the current working directory.
 
    The script picks up where it left off — there is no state to resume, just whatever `[ ]` items remain in `.ralph/plan.md`.
 
-4. If `.ralph/` does not exist or `.ralph/plan.md` is missing, the script will say so and exit. Tell the user to run `/ralph-init` first.
+4. If `.ralph/` does not exist or `.ralph/plan.md` is missing, the script will say so and exit. Tell the user to run `/ralph:init` first.
