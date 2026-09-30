@@ -35,7 +35,7 @@ claude --plugin-dir /path/to/ralph
 
 ## Commands
 
-### `/ralph-init`
+### `/ralph:init`
 
 Scaffolds `.ralph/` in the current working directory:
 
@@ -50,7 +50,7 @@ Scaffolds `.ralph/` in the current working directory:
 
 `.ralph/` ignores itself via its own `.gitignore`, which works in a plain repo, a git worktree, or a subdirectory. Idempotent — does nothing if `.ralph/` already exists.
 
-### `/ralph-run`
+### `/ralph:run`
 
 Runs the loop. Each iteration is an independent `claude -p` invocation with a **fresh context window**: no `--continue`, no carried conversation. The plan file is the only state between iterations.
 
@@ -64,19 +64,19 @@ The model's job each turn:
 
 The loop exits when the plan has zero `- [ ]` items, `RALPH_MAX_ITERATIONS` is hit, or Ctrl+C. It also stops (exit 1) when an iteration fails — `claude` exits non-zero, reports `is_error`, or a non-`success` subtype such as `error_max_turns` — or when two consecutive iterations leave `plan.md` unchanged. In both cases it prints the model's last `result` so a stuck item is visible in the terminal, not just in `.ralph/logs/`.
 
-### `/ralph-goal <condition>`
+### `/ralph:goal <condition>`
 
-Single-session alternate mode. Spawns one `claude -p "/goal <condition>"` process whose built-in evaluator decides when the condition holds. Unlike `/ralph-run`, this rides on **one continued conversation** — useful for shorter, well-scoped work where one session is enough.
+Single-session alternate mode. Spawns one `claude -p "/goal <condition>"` process whose built-in evaluator decides when the condition holds. Unlike `/ralph:run`, this rides on **one continued conversation** — useful for shorter, well-scoped work where one session is enough.
 
 ```
-/ralph-goal every test in test/auth passes and lint is clean
+/ralph:goal every test in test/auth passes and lint is clean
 ```
 
 ---
 
 ## When to use which mode
 
-| | `/ralph-run` | `/ralph-goal` |
+| | `/ralph:run` | `/ralph:goal` |
 |---|---|---|
 | Context per turn | Fresh every iteration | One continued conversation |
 | Exit decided by | Bash grep of `plan.md` for `- [ ]` | Fast-model evaluator after every turn |
@@ -84,7 +84,7 @@ Single-session alternate mode. Spawns one `claude -p "/goal <condition>"` proces
 | Resistant to context rot | Yes — no context to rot | No — accumulates until auto-compact |
 | State between iterations | `plan.md` only | Full conversation |
 
-Default to `/ralph-run` for anything substantial. Reach for `/ralph-goal` when the work is small enough to fit comfortably in one session and the success condition is easy to phrase. For codebase-scale work where Claude can plan the subtasks itself, prefer [dynamic workflows](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code) over either of these.
+Default to `/ralph:run` for anything substantial. Reach for `/ralph:goal` when the work is small enough to fit comfortably in one session and the success condition is easy to phrase. For codebase-scale work where Claude can plan the subtasks itself, prefer [dynamic workflows](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code) over either of these.
 
 ---
 
@@ -95,8 +95,8 @@ Default to `/ralph-run` for anything substantial. Reach for `/ralph-goal` when t
 ```bash
 RALPH_MAX_ITERATIONS=100                  # hard cap on loop count
 RALPH_MAX_TURNS=10                        # agentic turns per claude -p call
-RALPH_BUDGET_USD=2.00                     # per-iteration USD cap (/ralph-run)
-RALPH_GOAL_BUDGET_USD=5.00                # whole-session USD cap (/ralph-goal)
+RALPH_BUDGET_USD=2.00                     # per-iteration USD cap (/ralph:run)
+RALPH_GOAL_BUDGET_USD=5.00                # whole-session USD cap (/ralph:goal)
 RALPH_MODEL=sonnet                        # sonnet | opus | full model ID
 RALPH_PERMISSION_MODE=bypassPermissions   # canonical Ralph: model runs anything
 ```
@@ -122,7 +122,7 @@ cd <your-project>
 bash /path/to/ralph/lib/ralph-loop.sh
 ```
 
-Use the path you cloned the plugin to. `/ralph-run` prints this exact command when the Bash tool cuts a run short, so you can copy it into `tmux`.
+Use the path you cloned the plugin to. `/ralph:run` prints this exact command when the Bash tool cuts a run short, so you can copy it into `tmux`.
 
 The script has no resumable state — it just reads `.ralph/plan.md` and picks the next `- [ ]`. Killing and restarting it is safe.
 

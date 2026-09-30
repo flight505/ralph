@@ -11,7 +11,7 @@ CONFIG="$RALPH_DIR/config"
 LOG_DIR="$RALPH_DIR/logs"
 
 if [[ ! -d "$RALPH_DIR" ]]; then
-  echo "ralph: no .ralph/ in $(pwd). Run /ralph-init first." >&2
+  echo "ralph: no .ralph/ in $(pwd). Run /ralph:init first." >&2
   exit 1
 fi
 for f in "$PLAN" "$PROMPT" "$CONFIG"; do
