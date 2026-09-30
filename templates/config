@@ -1,4 +1,4 @@
-# Ralph loop config — sourced by lib/ralph-loop.sh
+# Ralph config — sourced by lib/ralph-loop.sh and lib/ralph-goal.sh
 # Edit values, no logic.
 
 # Hard cap on iterations. The loop also exits when plan.md has zero `- [ ]` items.
@@ -11,6 +11,10 @@ RALPH_MAX_TURNS=10
 # Until 2026-06-15, `-p` usage counts against your Claude subscription's regular limits.
 # From 2026-06-15, `-p` usage draws from a separate monthly Agent SDK credit.
 RALPH_BUDGET_USD=2.00
+
+# Whole-session USD cap for /ralph-goal. Separate from RALPH_BUDGET_USD, which
+# caps one loop iteration only.
+RALPH_GOAL_BUDGET_USD=5.00
 
 # Model alias or full ID. `sonnet`/`opus` track the latest of each family.
 # Sonnet is the recommended default for many-iteration runs.

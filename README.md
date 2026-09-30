@@ -25,12 +25,11 @@ If none of those apply, [try dynamic workflows first](https://claude.com/blog/in
 ## Install
 
 ```bash
-# As a one-off, from this directory:
-claude --plugin-dir .
-
-# Or symlink into your plugins:
-ln -s "$PWD" ~/.claude/plugins/ralph
+git clone https://github.com/flight505/ralph.git
+claude --plugin-dir /path/to/ralph
 ```
+
+`--plugin-dir` loads the plugin for that session only, so pass it every time you start Claude Code. Do not symlink the repo into `~/.claude/plugins/` — that directory is Claude Code's plugin store, not a load path, and nothing there is picked up.
 
 ---
 
@@ -96,7 +95,8 @@ Default to `/ralph-run` for anything substantial. Reach for `/ralph-goal` when t
 ```bash
 RALPH_MAX_ITERATIONS=100                  # hard cap on loop count
 RALPH_MAX_TURNS=10                        # agentic turns per claude -p call
-RALPH_BUDGET_USD=2.00                     # per-iteration USD cap
+RALPH_BUDGET_USD=2.00                     # per-iteration USD cap (/ralph-run)
+RALPH_GOAL_BUDGET_USD=5.00                # whole-session USD cap (/ralph-goal)
 RALPH_MODEL=sonnet                        # sonnet | opus | full model ID
 RALPH_PERMISSION_MODE=bypassPermissions   # canonical Ralph: model runs anything
 ```
@@ -119,8 +119,10 @@ The slash commands are convenient inside an interactive Claude session, but the 
 
 ```bash
 cd <your-project>
-bash ~/.claude/plugins/ralph/lib/ralph-loop.sh
+bash /path/to/ralph/lib/ralph-loop.sh
 ```
+
+Use the path you cloned the plugin to. `/ralph-run` prints this exact command when the Bash tool cuts a run short, so you can copy it into `tmux`.
 
 The script has no resumable state — it just reads `.ralph/plan.md` and picks the next `- [ ]`. Killing and restarting it is safe.
 

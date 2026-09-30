@@ -1,5 +1,5 @@
 #!/bin/bash
-# Regression tests for lib/ralph-loop.sh and lib/ralph-init.sh.
+# Regression tests for lib/ralph-loop.sh, lib/ralph-goal.sh and lib/ralph-init.sh.
 # Dependency-free: bash 3.2, git, awk, and the scripts under test.
 # Drives the loop with a stub `claude` on PATH. Stub modes adapted from
 # the scout report's evidence appendix.
@@ -28,6 +28,8 @@ mkdir -p "$STUB_DIR"
 cat > "$STUB_DIR/claude" <<'STUB'
 #!/bin/bash
 printf '%s\n' "ARGS: $*" >> "${FAKE_ARGS_LOG:-/dev/null}"
+if [[ /dev/stdin -ef /dev/null ]]; then stdin=devnull; else stdin=other; fi
+printf '%s\n' "STDIN: $stdin" >> "${FAKE_ARGS_LOG:-/dev/null}"
 flip() {
   awk 'BEGIN { d = 0 } /^- \[ \]/ && !d { sub(/^- \[ \]/, "- [x]"); d = 1 } { print }' \
     .ralph/plan.md > .ralph/plan.md.tmp && mv .ralph/plan.md.tmp .ralph/plan.md
@@ -44,6 +46,7 @@ case "${FAKE_MODE:-flip}" in
   maxturns)    json error_max_turns true 0.9 "" ;;
   autherr)     json success true 0 "Not logged in · Please run /login"; exit 1 ;;
   fail)        echo "Not logged in · Please run /login" >&2; exit 1 ;;
+  goal)        : ;;
 esac
 STUB
 chmod +x "$STUB_DIR/claude"
@@ -65,6 +68,13 @@ new_project() {
 # run_loop <mode> <dir>: runs the loop, sets $out and $rc.
 run_loop() {
   out=$(cd "$2" && FAKE_MODE="$1" FAKE_ARGS_LOG="$2/args.log" bash "$REPO/lib/ralph-loop.sh" 2>&1)
+  rc=$?
+}
+
+# run_goal <dir> <condition>: runs the goal wrapper with a pipe on stdin, sets $out and $rc.
+# The pipe (not a TTY, not /dev/null) is what the real CLI waits 3s on.
+run_goal() {
+  out=$(cd "$1" && echo "not for claude" | FAKE_MODE=goal FAKE_ARGS_LOG="$1/args.log" bash "$REPO/lib/ralph-goal.sh" "$2" 2>&1)
   rc=$?
 }
 
@@ -119,6 +129,27 @@ d=$(new_project noflip); run_loop noflip "$d"
 check "exits 1"                    '[[ $rc -eq 1 ]]'
 check "stops after 2 iterations"   '[[ $(iters) -eq 2 ]]'
 check "prints last .result"        'echo "$out" | grep -q "impossible"'
+
+# --- goal tests (C6, C7) --------------------------------------------------
+
+echo "C6: goal uses RALPH_GOAL_BUDGET_USD, not the loop cap"
+d=$(new_project goal); echo "RALPH_GOAL_BUDGET_USD=7.50" >> "$d/.ralph/config"; run_goal "$d" "tests pass"
+check "exits 0"                    '[[ $rc -eq 0 ]]'
+check "passes the goal cap"        'grep -q -- "--max-budget-usd 7.50" "$d/args.log"'
+check "ignores the loop cap"       '! grep -q -- "--max-budget-usd 2.00" "$d/args.log"'
+check "prints the goal cap"        'echo "$out" | grep -q "\$7.50 cap"'
+
+echo "C6: goal falls back to 5.00 when config lacks RALPH_GOAL_BUDGET_USD"
+d=$(new_project goal-old); run_goal "$d" "tests pass"
+check "passes 5.00"                'grep -q -- "--max-budget-usd 5.00" "$d/args.log"'
+check "ignores the loop cap"       '! grep -q -- "--max-budget-usd 2.00" "$d/args.log"'
+
+echo "C7: goal redirects stdin from /dev/null"
+check "source has < /dev/null"     'grep -q "< /dev/null" "$REPO/lib/ralph-goal.sh"'
+
+echo "loop: stdin is /dev/null too"
+d=$(new_project loopstdin); run_loop flip "$d"
+check "stdin is /dev/null"         'grep -q "STDIN: devnull" "$d/args.log" && ! grep -q "STDIN: other" "$d/args.log"'
 
 # --- init tests (C4) -------------------------------------------------------
 

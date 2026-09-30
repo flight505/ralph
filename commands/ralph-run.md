@@ -12,10 +12,10 @@ Start the Ralph loop in the current working directory.
 
 2. The loop prints one status line per iteration and writes a JSON result plus a stderr file per iteration to `.ralph/logs/`. It exits when `.ralph/plan.md` has zero `- [ ]` items, when `RALPH_MAX_ITERATIONS` is hit, or on Ctrl+C. It stops with exit 1 and prints the model's last `result` when an iteration fails or when two consecutive iterations leave the plan unchanged.
 
-3. If the Bash tool's timeout cuts the run short before the plan is empty, tell the user the loop is best run from a real shell for long jobs:
+3. If the Bash tool's timeout cuts the run short before the plan is empty, the loop is best run from a real shell (`tmux` or `screen`) for long jobs. Print the exact command with the Bash tool and give the user the printed line verbatim, so it carries the real plugin path:
 
    ```bash
-   bash ~/.claude/plugins/ralph/lib/ralph-loop.sh
+   echo "bash ${CLAUDE_PLUGIN_ROOT}/lib/ralph-loop.sh"
    ```
 
    The script picks up where it left off — there is no state to resume, just whatever `[ ]` items remain in `.ralph/plan.md`.
