@@ -19,24 +19,20 @@ cp "$TEMPLATES/plan.md"          "$TARGET/plan.md"
 cp "$TEMPLATES/ralph.prompt.md"  "$TARGET/ralph.prompt.md"
 cp "$TEMPLATES/config"           "$TARGET/config"
 
-# Add .ralph/ to .gitignore if a repo is present and the entry isn't already there.
-if [[ -d .git ]] && [[ -f .gitignore ]] && ! grep -qxF ".ralph/" .gitignore; then
-  printf '\n# ralph loop state\n.ralph/\n' >> .gitignore
-  echo "ralph: added .ralph/ to .gitignore."
-elif [[ -d .git ]] && [[ ! -f .gitignore ]]; then
-  printf '# ralph loop state\n.ralph/\n' > .gitignore
-  echo "ralph: created .gitignore with .ralph/ entry."
-fi
+# .ralph/ ignores itself. This works in a plain repo, a git worktree (where
+# .git is a file), and a subdirectory of a repo, with no repo detection.
+printf '*\n' > "$TARGET/.gitignore"
 
-cat <<EOF
+cat <<EOF2
 ralph: scaffold ready.
 
   .ralph/plan.md            — edit this to add your tasks
   .ralph/ralph.prompt.md    — the per-iteration system prompt
   .ralph/config             — model, budget, iteration cap
-  .ralph/logs/              — one JSONL log per iteration
+  .ralph/logs/              — one JSON result + one stderr file per iteration
+  .ralph/.gitignore         — keeps .ralph/ out of git
 
 Next:
   1. Edit .ralph/plan.md and replace the example item.
   2. Run /ralph-run to start the loop.
-EOF
+EOF2
