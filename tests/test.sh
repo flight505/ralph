@@ -145,7 +145,7 @@ check "passes 5.00"                'grep -q -- "--max-budget-usd 5.00" "$d/args.
 check "ignores the loop cap"       '! grep -q -- "--max-budget-usd 2.00" "$d/args.log"'
 
 echo "C7: goal redirects stdin from /dev/null"
-check "stdin is /dev/null"         'grep -q "STDIN: devnull" "$d/args.log"'
+check "source has < /dev/null"     'grep -q "< /dev/null" "$REPO/lib/ralph-goal.sh"'
 
 echo "loop: stdin is /dev/null too"
 d=$(new_project loopstdin); run_loop flip "$d"
