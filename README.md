@@ -16,7 +16,7 @@ Ralph is for a narrower case. Use Ralph when one or more of these is true:
 - **You want a shell process you can supervise.** Ralph is a bash script — `cron`, `tmux`, `ssh`, `systemd` all work normally on it. Dynamic workflows runs inside a Claude Code session.
 - **You are on Pro, or on a tier where dynamic workflows isn't available.** Dynamic workflows requires Max, Team, or admin-enabled Enterprise. Ralph runs on any tier.
 - **You want token cost bounded per iteration.** Ralph caps cost per iteration via `--max-budget-usd`. Dynamic workflows "consumes substantially more tokens than a typical Claude Code session" (their words).
-- **You want the loop to be inspectable.** Ralph is ~150 lines of bash you can read, modify, and audit. Dynamic workflows is managed infrastructure.
+- **You want the loop to be inspectable.** Ralph is ~210 lines of bash you can read, modify, and audit. Dynamic workflows is managed infrastructure.
 
 If none of those apply, [try dynamic workflows first](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code).
 
@@ -71,6 +71,8 @@ Single-session alternate mode. Spawns one `claude -p "/goal <condition>"` proces
 ```
 /ralph:goal every test in test/auth passes and lint is clean
 ```
+
+It works without `/ralph:init`, but the permission mode differs: with no `.ralph/config` it runs in `dontAsk`, and once `/ralph:init` has written one it runs in that file's `RALPH_PERMISSION_MODE`, which defaults to `bypassPermissions`.
 
 ---
 

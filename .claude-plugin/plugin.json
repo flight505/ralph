@@ -19,9 +19,6 @@
     "headless",
     "autonomous"
   ],
-  "agents": [
-    "./agents/code-studier.md"
-  ],
   "commands": [
     "./commands/init.md",
     "./commands/run.md",
