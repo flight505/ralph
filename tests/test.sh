@@ -197,6 +197,7 @@ done)
 check "command files call scripts that exist" '[[ -z "$missing" ]]'
 [[ -n "$missing" ]] && printf '%s\n' "$missing" | sed 's/^/       /'
 check "plugin.json lists them"        'grep -q "commands/init.md" "$REPO/.claude-plugin/plugin.json" && grep -q "commands/run.md" "$REPO/.claude-plugin/plugin.json" && grep -q "commands/goal.md" "$REPO/.claude-plugin/plugin.json"'
+check "plugin.json registers no agents" '[[ "$(jq "has(\"agents\")" "$REPO/.claude-plugin/plugin.json")" == "false" ]]'
 
 # --- summary ---------------------------------------------------------------
 
